@@ -26,7 +26,7 @@ public class OrderController {
         orderService.handleOrderFailure(failedProducts);
         return ResponseEntity.ok().build();
     }
-    @PostMapping("/place-order")
+    @PostMapping("/create")
     public ResponseEntity<Void> placeOrder(@RequestBody List<PurchaseProductRequestDto> purchaseProductRequestDtos) {
         orderService.placeOrder(purchaseProductRequestDtos);
         return ResponseEntity.ok().build();

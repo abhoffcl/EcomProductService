@@ -1,5 +1,6 @@
 package dev.Abhishek.EcomProductService.service.product;
 
+import dev.Abhishek.EcomProductService.dto.ProductQuantityDto;
 import dev.Abhishek.EcomProductService.dto.ProductRequestDto;
 import dev.Abhishek.EcomProductService.dto.ProductResponseDto;
 import dev.Abhishek.EcomProductService.dto.orderDto.FailedOrderProductsDto;
@@ -47,8 +48,8 @@ public class ProductServiceImpl implements ProductService {
         Category category = categoryRepository.findById(productRequestDto.getCategoryId()).
                 orElseThrow(()-> new CategoryNotFoundException("Category not found for id:"+productRequestDto.getCategoryId()));
         product.setCategory(category);
-        product= productRepository.save(product);
-        return convertProductEntityToProductResponseDto(product);
+        Product savedProduct= productRepository.save(product);
+        return convertProductEntityToProductResponseDto(savedProduct);
     }
     @Override
     public ProductResponseDto updateProduct(ProductRequestDto productRequestDto, UUID productId) {
@@ -81,7 +82,23 @@ public class ProductServiceImpl implements ProductService {
                 map(savedProduct->convertProductEntityToProductResponseDto(savedProduct)).
                 collect(Collectors.toList()) :  new ArrayList<>();
         return productResponseDtos;
+
     }
+    @Override
+    public List<ProductResponseDto> setQuantityForProducts(List<ProductQuantityDto> productQuantityDtos) {
+        List<ProductResponseDto> productResponseDtos = productQuantityDtos.stream()
+                .map(dto -> {
+                    UUID productId =dto.getProductId();
+                    Product savedProduct = productRepository.findById(productId)
+                            .orElseThrow(() -> new ProductNotFoundException("Product not found for id " + productId));
+                    savedProduct.setQuantity(dto.getQuantity());
+                    Product updatedProduct = productRepository.save(savedProduct);
+                    return convertProductEntityToProductResponseDto(updatedProduct);
+                })
+                .collect(Collectors.toList());
+        return  productResponseDtos;
+    }
+
     public void updateStockOnOrderFailure(List<FailedOrderProductsDto> failedProducts) {
         for(FailedOrderProductsDto failedProduct : failedProducts){
             UUID productId = UUID.fromString(failedProduct.getProductId());
@@ -93,12 +110,14 @@ public class ProductServiceImpl implements ProductService {
     }
     public  ProductResponseDto convertProductEntityToProductResponseDto(Product product){
         ProductResponseDto productResponseDto = new ProductResponseDto();
+        productResponseDto.setProductId(product.getId());
         productResponseDto.setDescription(product.getDescription());
         productResponseDto.setPrice(product.getPrice());
         productResponseDto.setRating(product.getRating());
         productResponseDto.setImageURL(product.getImageURL());
         productResponseDto.setTitle(product.getTitle());
         productResponseDto.setCategory(product.getCategory().getName());
+        productResponseDto.setQuantity(product.getQuantity());
         return productResponseDto;
     }
     public  Product convertProductRequestDtoToProduct(ProductRequestDto productRequestDto){
@@ -107,6 +126,7 @@ public class ProductServiceImpl implements ProductService {
         Category productCategory = categoryRepository.findById(categoryId).
                 orElseThrow(()->new CategoryNotFoundException("category not found for id :"+categoryId));
         product.setRating(0);
+        product.setQuantity(0);
         product.setDescription(productRequestDto.getDescription());
         product.setPrice(productRequestDto.getPrice());
         product.setTitle(productRequestDto.getTitle());

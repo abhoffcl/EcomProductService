@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface OrderService {
     void handleOrderFailure(List<FailedOrderProductsDto> failedProducts);
-    boolean placeOrder(List<PurchaseProductRequestDto> purchaseProductRequestDtos)
+    void placeOrder(List<PurchaseProductRequestDto> purchaseProductRequestDtos);
 
 }

@@ -1,5 +1,6 @@
 package dev.Abhishek.EcomProductService.service.product;
 
+import dev.Abhishek.EcomProductService.dto.ProductQuantityDto;
 import dev.Abhishek.EcomProductService.dto.ProductRequestDto;
 import dev.Abhishek.EcomProductService.dto.ProductResponseDto;
 
@@ -11,6 +12,7 @@ public interface ProductService {
     ProductResponseDto getProduct(UUID productId);
     ProductResponseDto createProduct(ProductRequestDto product);
     ProductResponseDto updateProduct(ProductRequestDto updateProduct, UUID productId);
+    List<ProductResponseDto> setQuantityForProducts(List<ProductQuantityDto>productQuantityDtos);
     boolean deleteProduct(UUID productId);
     ProductResponseDto getProduct(String productName);
     List<ProductResponseDto> getProducts(double minPrice,double maxPrice);

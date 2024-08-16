@@ -1,5 +1,6 @@
 package dev.Abhishek.EcomProductService.controller;
 
+import dev.Abhishek.EcomProductService.dto.ProductQuantityDto;
 import dev.Abhishek.EcomProductService.dto.ProductRequestDto;
 import dev.Abhishek.EcomProductService.dto.ProductResponseDto;
 import dev.Abhishek.EcomProductService.exception.InvalidInputException;
@@ -40,6 +41,10 @@ public class ProductController {
     public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable("id")UUID id,@RequestBody ProductRequestDto productRequestDto){
         ProductResponseDto updatedProduct = productService.updateProduct(productRequestDto,id);
         return ResponseEntity.ok(updatedProduct);
+    }
+    @PostMapping("/stock")
+    public ResponseEntity<List<ProductResponseDto>>setQuantityForProducts(@RequestBody List<ProductQuantityDto>productQuantityDtos){
+        return ResponseEntity.ok(productService.setQuantityForProducts(productQuantityDtos));
     }
 
     @DeleteMapping("/{id}")

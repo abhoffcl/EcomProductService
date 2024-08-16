@@ -1,10 +1,12 @@
 package dev.Abhishek.EcomProductService.client;
 
+import dev.Abhishek.EcomProductService.exception.ClientException.UserServiceException;
 import dev.Abhishek.EcomProductService.security.JwtObject;
-import jakarta.persistence.Column;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
@@ -26,8 +28,15 @@ public class UserAuthClient {
     public Optional<JwtObject> validateToken(String token) {
         String validateTokenUrl = userAuthServiceBaseUrl.concat(userAuthServiceValidateTokenPath).concat(token);
         RestTemplate restTemplate = restTemplateBuilder.build();
-        JwtObject jwtObject = restTemplate.getForObject(validateTokenUrl, JwtObject.class);
-        return Optional.ofNullable(jwtObject);
+        try {
+            JwtObject jwtObject = restTemplate.getForObject(validateTokenUrl, JwtObject.class);
+            return Optional.ofNullable(jwtObject);
+        } catch (ResourceAccessException e) {
+            throw new UserServiceException("Failed to authenticate: Timeout or resource access issue.");
+        } catch (RestClientException e) {
+            throw new UserServiceException("Failed to authenticate: An error occurred during REST call.");
+        }
     }
+
 
 }
