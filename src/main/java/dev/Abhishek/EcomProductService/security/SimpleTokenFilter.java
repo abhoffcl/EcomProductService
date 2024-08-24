@@ -1,6 +1,7 @@
 package dev.Abhishek.EcomProductService.security;
 
 import dev.Abhishek.EcomProductService.client.UserAuthClient;
+import dev.Abhishek.EcomProductService.exception.ClientException.UserServiceException;
 import dev.Abhishek.EcomProductService.exception.UnauthorizedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,7 +28,15 @@ public class SimpleTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, ServletException , UserServiceException {
+
+        // Skip the filter for the /order/failed endpoint when accessed from localhost
+        if (request.getRequestURI().equals("/order/failed") && request.getRemoteAddr().equals("127.0.0.1")){
+            chain.doFilter(request, response);
+            return ;
+        }
+
+
         String token = request.getHeader("Authorization");
 
             if (token == null || token.isEmpty()) {

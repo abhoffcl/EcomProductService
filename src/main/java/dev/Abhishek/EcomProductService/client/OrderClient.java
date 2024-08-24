@@ -23,7 +23,7 @@ public class OrderClient {
         this.orderServiceBaseUrl = orderServiceBaseUrl;
         this.orderServiceValidatePlaceOrderPath = orderServiceValidatePlaceOrderPath;
     }
-    public boolean placeOrder(PlaceOrderRequestDto placeOrderRequestDto){
+    public boolean placeOrder(PlaceOrderRequestDto placeOrderRequestDto)throws OrderServiceException{
         String placeOrderUrl = orderServiceBaseUrl.concat(orderServiceValidatePlaceOrderPath);
         RestTemplate restTemplate = restTemplateBuilder.build();
         try {

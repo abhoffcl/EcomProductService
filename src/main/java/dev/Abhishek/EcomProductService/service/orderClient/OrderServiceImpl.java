@@ -7,6 +7,7 @@ import dev.Abhishek.EcomProductService.dto.orderDto.FailedOrderProductsDto;
 import dev.Abhishek.EcomProductService.dto.orderDto.OrderItemDto;
 import dev.Abhishek.EcomProductService.dto.orderDto.PlaceOrderRequestDto;
 import dev.Abhishek.EcomProductService.entity.Product;
+import dev.Abhishek.EcomProductService.exception.ClientException.OrderServiceException;
 import dev.Abhishek.EcomProductService.exception.ProductNotFoundException;
 import dev.Abhishek.EcomProductService.exception.ProductOutOfStockException;
 import dev.Abhishek.EcomProductService.repository.ProductRepository;
@@ -32,11 +33,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void handleOrderFailure(List<FailedOrderProductsDto> failedProducts) {
+    public void handleOrderFailure(List<FailedOrderProductsDto> failedProducts)throws ProductNotFoundException {
         ((ProductServiceImpl)productService).updateStockOnOrderFailure(failedProducts);
     }
     @Override
-    public void placeOrder(List<PurchaseProductRequestDto> purchaseProductRequestDtos) {
+    public void placeOrder(List<PurchaseProductRequestDto> purchaseProductRequestDtos)throws ProductNotFoundException ,
+            ProductOutOfStockException, OrderServiceException {
         PlaceOrderRequestDto placeOrderRequestDto =new PlaceOrderRequestDto();
         List<OrderItemDto> items = purchaseProductRequestDtos.stream()
                 .map(dto -> {
@@ -64,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
             updateProductQuantitiesAfterOrder(purchaseProductRequestDtos);
         }
     }
-    public void updateProductQuantitiesAfterOrder(List<PurchaseProductRequestDto> purchaseProductRequestDtos){
+    public void updateProductQuantitiesAfterOrder(List<PurchaseProductRequestDto> purchaseProductRequestDtos)throws ProductNotFoundException{
         List<ProductQuantityDto>productQuantityDtos =purchaseProductRequestDtos.
                 stream().
                 map(dto->{

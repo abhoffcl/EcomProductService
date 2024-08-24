@@ -24,18 +24,18 @@ public class SpringSecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable()).
                 authorizeHttpRequests(authorize-> authorize
-                         .requestMatchers(HttpMethod.GET, "/product/**", "/category/**").permitAll() // Allow public access to GET requests
+                        .requestMatchers(HttpMethod.GET, "/product/**", "/category/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/order/failed").permitAll()
                         .requestMatchers(HttpMethod.POST, "/product/**", "/category/**").hasAuthority("ROLE_admin")
                         .requestMatchers(HttpMethod.PUT, "/product/**", "/category/**").hasAuthority("ROLE_admin")
                         .requestMatchers(HttpMethod.DELETE, "/product/**", "/category/**").hasAuthority("ROLE_admin")
-                        .requestMatchers(HttpMethod.POST, "/order/**").hasAnyAuthority("ROLE_admin","ROLE_customer")
+                        .requestMatchers(HttpMethod.POST, "/order/create").hasAnyAuthority("ROLE_admin","ROLE_customer")
                         .anyRequest().authenticated()
                 )
                 .addFilterAfter(new SimpleTokenFilter(userAuthClient), BasicAuthenticationFilter.class)
                 .formLogin(Customizer.withDefaults());
 
         return http.build();
-
 
     }
 }

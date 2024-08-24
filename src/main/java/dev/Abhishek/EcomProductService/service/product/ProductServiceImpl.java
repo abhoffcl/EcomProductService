@@ -37,22 +37,19 @@ public class ProductServiceImpl implements ProductService {
         return productResponseDtos ;
     }
     @Override
-    public ProductResponseDto getProduct(UUID productId) {
+    public ProductResponseDto getProduct(UUID productId)throws ProductNotFoundException {
         Product product= productRepository.findById(productId).
                 orElseThrow(()->new ProductNotFoundException("Product not found for id :"+productId));
         return convertProductEntityToProductResponseDto(product);
     }
     @Override
-    public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
+    public ProductResponseDto createProduct(ProductRequestDto productRequestDto)throws CategoryNotFoundException {
         Product product = convertProductRequestDtoToProduct(productRequestDto);
-        Category category = categoryRepository.findById(productRequestDto.getCategoryId()).
-                orElseThrow(()-> new CategoryNotFoundException("Category not found for id:"+productRequestDto.getCategoryId()));
-        product.setCategory(category);
         Product savedProduct= productRepository.save(product);
         return convertProductEntityToProductResponseDto(savedProduct);
     }
     @Override
-    public ProductResponseDto updateProduct(ProductRequestDto productRequestDto, UUID productId) {
+    public ProductResponseDto updateProduct(ProductRequestDto productRequestDto, UUID productId)throws ProductNotFoundException {
        Product savedProduct = productRepository.findById(productId).
                orElseThrow(()->new ProductNotFoundException("Product not found for id :"+productId));
        savedProduct.setTitle(productRequestDto.getTitle());
@@ -68,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
         return true;
     }
     @Override
-    public ProductResponseDto getProduct(String productName) {
+    public ProductResponseDto getProduct(String productName)throws ProductNotFoundException {
         Product savedProduct = productRepository.findProductByTitle(productName);
         if(savedProduct==null)
             throw new ProductNotFoundException("Product :"+productName+"not found" );
@@ -85,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
 
     }
     @Override
-    public List<ProductResponseDto> setQuantityForProducts(List<ProductQuantityDto> productQuantityDtos) {
+    public List<ProductResponseDto> setQuantityForProducts(List<ProductQuantityDto> productQuantityDtos)throws ProductNotFoundException {
         List<ProductResponseDto> productResponseDtos = productQuantityDtos.stream()
                 .map(dto -> {
                     UUID productId =dto.getProductId();
@@ -99,12 +96,13 @@ public class ProductServiceImpl implements ProductService {
         return  productResponseDtos;
     }
 
-    public void updateStockOnOrderFailure(List<FailedOrderProductsDto> failedProducts) {
+    public void updateStockOnOrderFailure(List<FailedOrderProductsDto> failedProducts)throws ProductNotFoundException {
         for(FailedOrderProductsDto failedProduct : failedProducts){
             UUID productId = UUID.fromString(failedProduct.getProductId());
             Product savedProduct = productRepository.findById(productId)
                     .orElseThrow(() -> new ProductNotFoundException("Product not found for id " + productId));
-            savedProduct.setQuantity(savedProduct.getQuantity() + failedProduct.getQuantity());
+
+            savedProduct.setQuantity(savedProduct.getQuantity() - failedProduct.getQuantity());
             productRepository.save(savedProduct);
         }
     }
@@ -120,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
         productResponseDto.setQuantity(product.getQuantity());
         return productResponseDto;
     }
-    public  Product convertProductRequestDtoToProduct(ProductRequestDto productRequestDto){
+    public  Product convertProductRequestDtoToProduct(ProductRequestDto productRequestDto)throws CategoryNotFoundException{
         Product product = new Product();
         UUID categoryId = productRequestDto.getCategoryId();
         Category productCategory = categoryRepository.findById(categoryId).

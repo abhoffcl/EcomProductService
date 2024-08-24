@@ -28,7 +28,7 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable("id") UUID id){
         if(id==null)
-            throw new InvalidInputException("Input is not correct");
+            throw new InvalidInputException("Enter valid id");
         return ResponseEntity.ok( productService.getProduct(id));
     }
 
@@ -39,6 +39,8 @@ public class ProductController {
     }
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable("id")UUID id,@RequestBody ProductRequestDto productRequestDto){
+        if(id==null)
+            throw new InvalidInputException("Enter valid id");
         ProductResponseDto updatedProduct = productService.updateProduct(productRequestDto,id);
         return ResponseEntity.ok(updatedProduct);
     }
@@ -49,25 +51,21 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteProductById(@PathVariable("id")UUID id){
+        if(id==null)
+            throw new InvalidInputException("Enter valid id");
         return ResponseEntity.ok(productService.deleteProduct(id));
     }
     @GetMapping("/name/{productName}")
     public ResponseEntity<ProductResponseDto> getProductByName(@PathVariable("productName")String productName){
+        if(productName==null || productName.isBlank())
+            throw new InvalidInputException("Product name is invalid");
         return ResponseEntity.ok(productService.getProduct(productName));
-
 
     }
     @GetMapping("/{min}/{max}")
     public ResponseEntity< List<ProductResponseDto>> getProductByPriceRange(@PathVariable("min")double minPrice,@PathVariable("max")double maxPrice){
+        if(!(minPrice>0 && maxPrice>0 && minPrice<maxPrice))
+            throw new  InvalidInputException("Enter valid price range ");
         return ResponseEntity.ok(productService.getProducts(minPrice, maxPrice));
-
     }
-
-
-    /* @GetMapping("/productexception")
-    public ResponseEntity getProductException(){
-        throw new RandomException("Exception from product");
-    }
-
-     */
 }

@@ -27,7 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
         this.productService = productService;
     }
     @Override
-    public CategoryResponseDto getCategory(UUID categoryId){
+    public CategoryResponseDto getCategory(UUID categoryId)throws CategoryNotFoundException{
         Category category = categoryRepository.findById(categoryId).
                 orElseThrow(()->new CategoryNotFoundException("category not found for id :"+categoryId));
         return convertCategoryToCategoryResponseDto(category);
@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
        return convertCategoryToCategoryResponseDto(savedCategory);
     }
     @Override
-    public CategoryResponseDto updateCategory(CategoryRequestDto categoryRequestDto, UUID categoryId) {
+    public CategoryResponseDto updateCategory(CategoryRequestDto categoryRequestDto, UUID categoryId)throws CategoryNotFoundException {
         Category savedCategory =categoryRepository.findById(categoryId).
                 orElseThrow(()->new CategoryNotFoundException("category not found for id: "+categoryId));
         savedCategory.setName(categoryRequestDto.getCategoryName());
