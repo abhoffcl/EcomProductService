@@ -3,9 +3,9 @@ package dev.Abhishek.EcomProductService.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
+
 
 @Getter
 @Setter

@@ -30,12 +30,17 @@ public class SimpleTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException , UserServiceException {
 
-        // Skip the filter for the /order/failed endpoint when accessed from localhost
-        if (request.getRequestURI().equals("/order/failed") && request.getRemoteAddr().equals("127.0.0.1")){
+        if (
+            // Localhost access to /order/failed
+                (request.getRequestURI().equals("/order/failed") && request.getRemoteAddr().equals("127.0.0.1")) ||
+                        // Public GET access to /product/**
+                        (request.getRequestURI().startsWith("/product") && request.getMethod().equalsIgnoreCase("GET")) ||
+                        // Public GET access to /category/**
+                        (request.getRequestURI().startsWith("/category") && request.getMethod().equalsIgnoreCase("GET"))||
+                        (request.getRequestURI().startsWith("/actuator") && request.getMethod().equalsIgnoreCase("GET"))) {
             chain.doFilter(request, response);
-            return ;
+            return;
         }
-
 
         String token = request.getHeader("Authorization");
 

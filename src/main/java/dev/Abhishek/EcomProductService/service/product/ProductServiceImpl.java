@@ -10,6 +10,9 @@ import dev.Abhishek.EcomProductService.exception.CategoryNotFoundException;
 import dev.Abhishek.EcomProductService.exception.ProductNotFoundException;
 import dev.Abhishek.EcomProductService.repository.CategoryRepository;
 import dev.Abhishek.EcomProductService.repository.ProductRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,8 +20,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+
 @Service("productService")
 public class ProductServiceImpl implements ProductService {
+
 
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
@@ -37,6 +42,7 @@ public class ProductServiceImpl implements ProductService {
         return productResponseDtos ;
     }
     @Override
+    @Cacheable(value = "product", key = "#productId")
     public ProductResponseDto getProduct(UUID productId)throws ProductNotFoundException {
         Product product= productRepository.findById(productId).
                 orElseThrow(()->new ProductNotFoundException("Product not found for id :"+productId));
@@ -49,6 +55,7 @@ public class ProductServiceImpl implements ProductService {
         return convertProductEntityToProductResponseDto(savedProduct);
     }
     @Override
+    @CachePut(value = "product", key = "#productId")
     public ProductResponseDto updateProduct(ProductRequestDto productRequestDto, UUID productId)throws ProductNotFoundException {
        Product savedProduct = productRepository.findById(productId).
                orElseThrow(()->new ProductNotFoundException("Product not found for id :"+productId));
@@ -60,11 +67,13 @@ public class ProductServiceImpl implements ProductService {
        return convertProductEntityToProductResponseDto(updatedProduct);
     }
     @Override
+    @CacheEvict(value = "product", key = "#productId")
     public boolean deleteProduct(UUID productId) {
         productRepository.deleteById(productId);
         return true;
     }
     @Override
+    @Cacheable(value = "productByName", key = "#productName")
     public ProductResponseDto getProduct(String productName)throws ProductNotFoundException {
         Product savedProduct = productRepository.findProductByTitle(productName);
         if(savedProduct==null)
