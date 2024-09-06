@@ -27,7 +27,7 @@ public class ExceptionHandlingFilter extends OncePerRequestFilter {
             handleException(response, ex, HttpStatus.UNAUTHORIZED);
         } catch (UserServiceException ex) {
             handleException(response, ex, HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
             handleException(response, ex, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
